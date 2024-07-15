@@ -4,9 +4,27 @@ import './UserReview.css';
 const UserReview = ({ userId, travelGuideId }) => {
   const [rating, setRating] = useState('');
   const [review, setReview] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!rating) {
+      newErrors.rating = 'Rating is required';
+    } else if (rating < 1 || rating > 5) {
+      newErrors.rating = 'Rating must be between 1 and 5';
+    }
+    if (!review) {
+      newErrors.review = 'Review is required';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       const response = await fetch('https://api.example.com/reviews', { 
         method: 'POST',
@@ -39,6 +57,7 @@ const UserReview = ({ userId, travelGuideId }) => {
         max="5"
         required
       />
+      {errors.rating && <p className="error">{errors.rating}</p>}
       <label htmlFor="review">Review:</label>
       <textarea
         id="review"
@@ -47,6 +66,7 @@ const UserReview = ({ userId, travelGuideId }) => {
         placeholder="Write your review here..."
         required
       />
+      {errors.review && <p className="error">{errors.review}</p>}
       <button type="submit">Submit Review</button>
     </form>
   );
